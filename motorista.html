@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetMove - Motorista</title>
+  <style>
+    :root {
+      --bg: #050c08;
+      --bg-soft: #08120d;
+      --panel: rgba(10, 20, 15, 0.94);
+      --panel-soft: rgba(12, 24, 18, 0.92);
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f4fff8;
+      --muted: #98b6a5;
+      --accent: #18ff6d;
+      --accent-soft: rgba(24, 255, 109, 0.14);
+      --danger: #ff5e5e;
+      --warning: #ffb341;
+      --blue: #3ea6ff;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(24, 255, 109, 0.05), transparent 22%),
+        linear-gradient(180deg, #050c08 0%, #07110b 100%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    .sidebar {
+      background: rgba(8, 16, 12, 0.94);
+      border-right: 1px solid var(--line);
+      padding: 26px 18px;
+    }
+
+    .brand-block {
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+
+    .sidebar-subtitle {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .driver-badge {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(24, 255, 109, 0.2);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .driver-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(24, 255, 109, 0.55);
+    }
+
+    .nav {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: rgba(24, 255, 109, 0.15);
+    }
+
+    .sidebar-footer {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .page-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .toggle-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .toggle-status {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .toggle-btn {
+      width: 68px;
+      height: 36px;
+      border: 0;
+      border-radius: 999px;
+      background: #163124;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .toggle-btn::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      transition: 0.2s ease;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(180deg, #29ff7e, #11b54f);
+    }
+
+    .toggle-btn.active::after {
+      transform: translateX(32px);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 128px;
+      justify-content: center;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .status-online {
+      color: var(--accent);
+    }
+
+    .status-offline {
+      color: var(--danger);
+    }
+
+    .sections-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .summary-list,
+    .list-block {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-item,
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--bg-soft);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .summary-item span,
+    .list-row span {
+      color: var(--muted);
+    }
+
+    .summary-item strong,
+    .list-row strong {
+      color: var(--text);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn {
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: 0;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #24ff79 0%, #0fbd52 100%);
+      color: #04120a;
+    }
+
+    .secondary-btn {
+      background: linear-gradient(180deg, #ff6a6a 0%, #d83c3c 100%);
+      color: #fff;
+    }
+
+    .ghost-btn {
+      background: #141f19;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .map-placeholder {
+      min-height: 310px;
+      border-radius: 18px;
+      border: 1px dashed rgba(62, 166, 255, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, rgba(62,166,255,0.05), rgba(62,166,255,0.02)),
+        #08110d;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .small-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .small-tag.green {
+      background: rgba(24,255,109,0.12);
+      border: 1px solid rgba(24,255,109,0.18);
+      color: var(--accent);
+    }
+
+    .small-tag.blue {
+      background: rgba(62,166,255,0.12);
+      border: 1px solid rgba(62,166,255,0.18);
+      color: var(--blue);
+    }
+
+    .small-tag.orange {
+      background: rgba(255,179,65,0.12);
+      border: 1px solid rgba(255,179,65,0.18);
+      color: var(--warning);
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1180px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sections-grid,
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand">GetMove</div>
+        <span class="sidebar-subtitle">Painel do motorista</span>
+
+        <div class="driver-badge">
+          <span class="driver-dot"></span>
+          Conta verificada
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item active" href="#">Painel</a>
+        <a class="nav-item" href="#">Corridas</a>
+        <a class="nav-item" href="#">Ganhos</a>
+        <a class="nav-item" href="#">Veículo</a>
+        <a class="nav-item" href="#">Perfil</a>
+        <a class="nav-item" href="index.html">Voltar ao início</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        GetMove • versão inicial standalone<br />
+        Visual escuro seguindo a linha da Hibrity
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Painel do motorista</h1>
+          <p>Gerencie disponibilidade, rotas, solicitações e ganhos do dia em um só lugar.</p>
+        </div>
+
+        <div class="toggle-box">
+          <span class="toggle-label">Disponibilidade</span>
+          <span class="toggle-status" id="driverStatusLabel">Online</span>
+          <button class="toggle-btn active" id="onlineToggle" type="button"></button>
+        </div>
+      </div>
+
+      <section class="stats-grid">
+        <div class="card stat-card">
+          <span class="stat-label">Status atual</span>
+          <strong class="stat-value status-online" id="statusValue">Online</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Ganhos hoje</span>
+          <strong class="stat-value">R$ 186,40</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Corridas hoje</span>
+          <strong class="stat-value">9</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Avaliação</span>
+          <strong class="stat-value">4,9</strong>
+        </div>
+      </section>
+
+      <section class="sections-grid">
+        <div class="card">
+          <span class="small-tag green">Solicitação ativa</span>
+          <h2>Corrida disponível</h2>
+
+          <div class="summary-list">
+            <div class="summary-item">
+              <span>Passageiro</span>
+              <strong>Claudio Santos</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Origem</span>
+              <strong>Av. Paulista, 1200</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Destino</span>
+              <strong>Vila Mariana</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Distância até embarque</span>
+              <strong>2,4 km</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Valor estimado</span>
+              <strong>R$ 22,30</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Categoria</span>
+              <strong>Padrão</strong>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="primary-btn" type="button">Aceitar corrida</button>
+            <button class="secondary-btn" type="button">Recusar</button>
+            <button class="ghost-btn" type="button">Detalhes</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="small-tag blue">Navegação</span>
+          <h2>Mapa e rota</h2>
+          <div class="map-placeholder">Mapa do motorista / rota até o passageiro</div>
+        </div>
+      </section>
+
+      <section class="bottom-grid">
+        <div class="card">
+          <span class="small-tag orange">Ganhos recentes</span>
+          <h2>Últimas corridas</h2>
+          <div class="list-block">
+            <div class="list-row">
+              <span>#0001 • Centro → Liberdade</span>
+              <strong>R$ 18,20</strong>
+            </div>
+            <div class="list-row">
+              <span>#0002 • Paulista → Moema</span>
+              <strong>R$ 22,00</strong>
+            </div>
+            <div class="list-row">
+              <span>#0003 • Ibirapuera → Pinheiros</span>
+              <strong>R$ 13,90</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="small-tag blue">Veículo</span>
+          <h2>Dados do veículo</h2>
+          <div class="list-block">
+            <div class="list-row">
+              <span>Modelo</span>
+              <strong>HB20</strong>
+            </div>
+            <div class="list-row">
+              <span>Placa</span>
+              <strong>ABC-1234</strong>
+            </div>
+            <div class="list-row">
+              <span>Cor</span>
+              <strong>Prata</strong>
+            </div>
+            <div class="list-row">
+              <span>Categoria</span>
+              <strong>Padrão</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="small-tag green">Desempenho</span>
+          <h2>Indicadores</h2>
+          <div class="list-block">
+            <div class="list-row">
+              <span>Taxa de aceitação</span>
+              <strong>96%</strong>
+            </div>
+            <div class="list-row">
+              <span>Taxa de cancelamento</span>
+              <strong>2%</strong>
+            </div>
+            <div class="list-row">
+              <span>Tempo médio</span>
+              <strong>17 min</strong>
+            </div>
+            <div class="list-row">
+              <span>Notas recebidas</span>
+              <strong>128</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Tela inicial do motorista pronta para GitHub • versão standalone sem dependências externas
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const onlineToggle = document.getElementById("onlineToggle");
+    const driverStatusLabel = document.getElementById("driverStatusLabel");
+    const statusValue = document.getElementById("statusValue");
+
+    let isOnline = true;
+
+    function renderDriverStatus() {
+      if (isOnline) {
+        onlineToggle.classList.add("active");
+        driverStatusLabel.textContent = "Online";
+        driverStatusLabel.style.color = "#18ff6d";
+        statusValue.textContent = "Online";
+        statusValue.classList.remove("status-offline");
+        statusValue.classList.add("status-online");
+      } else {
+        onlineToggle.classList.remove("active");
+        driverStatusLabel.textContent = "Offline";
+        driverStatusLabel.style.color = "#ff5e5e";
+        statusValue.textContent = "Offline";
+        statusValue.classList.remove("status-online");
+        statusValue.classList.add("status-offline");
+      }
+    }
+
+    onlineToggle.addEventListener("click", () => {
+      isOnline = !isOnline;
+      renderDriverStatus();
+    });
+
+    renderDriverStatus();
+  </script>
+</body>
+</html>
