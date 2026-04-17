@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetMove - Passageiro</title>
+  <style>
+    :root {
+      --bg: #050c08;
+      --bg-soft: #08120d;
+      --panel: rgba(10, 20, 15, 0.94);
+      --panel-soft: rgba(12, 24, 18, 0.92);
+      --line: rgba(255, 255, 255, 0.08);
+      --text: #f4fff8;
+      --muted: #98b6a5;
+      --accent: #18ff6d;
+      --accent-soft: rgba(24, 255, 109, 0.14);
+      --blue: #3ea6ff;
+      --warning: #ffb341;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(24, 255, 109, 0.05), transparent 22%),
+        linear-gradient(180deg, #050c08 0%, #07110b 100%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+    }
+
+    .sidebar {
+      background: rgba(8, 16, 12, 0.94);
+      border-right: 1px solid var(--line);
+      padding: 26px 18px;
+    }
+
+    .brand-block {
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+
+    .sidebar-subtitle {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .user-badge {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(24, 255, 109, 0.2);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .user-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(24, 255, 109, 0.55);
+    }
+
+    .nav {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: rgba(24, 255, 109, 0.15);
+    }
+
+    .sidebar-footer {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .content {
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.1;
+    }
+
+    .page-title p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .account-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      border: 1px solid rgba(24, 255, 109, 0.18);
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .account-info {
+      display: grid;
+      gap: 2px;
+    }
+
+    .account-name {
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .account-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 20px;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 128px;
+      justify-content: center;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .status-green {
+      color: var(--accent);
+    }
+
+    .status-blue {
+      color: var(--blue);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      height: 46px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #08110d;
+      color: var(--text);
+      outline: none;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn {
+      height: 46px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: 0;
+      font-weight: 900;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .primary-btn {
+      background: linear-gradient(180deg, #24ff79 0%, #0fbd52 100%);
+      color: #04120a;
+    }
+
+    .secondary-btn {
+      background: linear-gradient(180deg, #3ea6ff 0%, #1174d5 100%);
+      color: #fff;
+    }
+
+    .ghost-btn {
+      background: #141f19;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .summary-list,
+    .list-block {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-item,
+    .list-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--bg-soft);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .summary-item span,
+    .list-row span {
+      color: var(--muted);
+    }
+
+    .summary-item strong,
+    .list-row strong {
+      color: var(--text);
+    }
+
+    .map-placeholder {
+      min-height: 300px;
+      border-radius: 18px;
+      border: 1px dashed rgba(62, 166, 255, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        linear-gradient(180deg, rgba(62,166,255,0.05), rgba(62,166,255,0.02)),
+        #08110d;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .small-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .small-tag.green {
+      background: rgba(24,255,109,0.12);
+      border: 1px solid rgba(24,255,109,0.18);
+      color: var(--accent);
+    }
+
+    .small-tag.blue {
+      background: rgba(62,166,255,0.12);
+      border: 1px solid rgba(62,166,255,0.18);
+      color: var(--blue);
+    }
+
+    .small-tag.orange {
+      background: rgba(255,179,65,0.12);
+      border: 1px solid rgba(255,179,65,0.18);
+      color: var(--warning);
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1180px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main-grid,
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <div class="brand">GetMove</div>
+        <span class="sidebar-subtitle">Painel do passageiro</span>
+
+        <div class="user-badge">
+          <span class="user-dot"></span>
+          Conta ativa
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item active" href="#">Início</a>
+        <a class="nav-item" href="#">Corridas</a>
+        <a class="nav-item" href="#">Pagamentos</a>
+        <a class="nav-item" href="#">Endereços</a>
+        <a class="nav-item" href="#">Perfil</a>
+        <a class="nav-item" href="index.html">Voltar ao início</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        GetMove • versão standalone<br />
+        Tema escuro seguindo o padrão visual da Hibrity
+      </div>
+    </aside>
+
+    <main class="content">
+      <div class="topbar">
+        <div class="page-title">
+          <h1>Painel do passageiro</h1>
+          <p>Solicite corridas, acompanhe status, veja estimativas e gerencie seus pagamentos.</p>
+        </div>
+
+        <div class="account-box">
+          <div class="avatar">C</div>
+          <div class="account-info">
+            <div class="account-name">Claudio Santos</div>
+            <div class="account-sub">Passageiro ativo</div>
+          </div>
+        </div>
+      </div>
+
+      <section class="stats-grid">
+        <div class="card stat-card">
+          <span class="stat-label">Status da conta</span>
+          <strong class="stat-value status-green">Ativa</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Corridas este mês</span>
+          <strong class="stat-value">18</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Último gasto</span>
+          <strong class="stat-value">R$ 24,90</strong>
+        </div>
+
+        <div class="card stat-card">
+          <span class="stat-label">Forma principal</span>
+          <strong class="stat-value status-blue">Cartão</strong>
+        </div>
+      </section>
+
+      <section class="main-grid">
+        <div class="card">
+          <span class="small-tag green">Nova corrida</span>
+          <h2>Solicitar corrida</h2>
+
+          <form class="form-grid">
+            <div class="form-group">
+              <label for="origem">Origem</label>
+              <input id="origem" type="text" placeholder="Digite sua origem" />
+            </div>
+
+            <div class="form-group">
+              <label for="destino">Destino</label>
+              <input id="destino" type="text" placeholder="Digite seu destino" />
+            </div>
+
+            <div class="form-group">
+              <label for="categoria">Categoria</label>
+              <select id="categoria">
+                <option>Econômica</option>
+                <option>Padrão</option>
+                <option>Premium</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="pagamento">Pagamento</label>
+              <select id="pagamento">
+                <option>Cartão principal</option>
+                <option>PIX</option>
+                <option>Dinheiro</option>
+              </select>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="primary-btn">Chamar corrida</button>
+              <button type="button" class="ghost-btn">Salvar rota</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card">
+          <span class="small-tag blue">Resumo da solicitação</span>
+          <h2>Estimativa</h2>
+
+          <div class="summary-list">
+            <div class="summary-item">
+              <span>Distância estimada</span>
+              <strong>8,4 km</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Tempo estimado</span>
+              <strong>18 min</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Valor estimado</span>
+              <strong>R$ 24,90</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Categoria</span>
+              <strong>Padrão</strong>
+            </div>
+
+            <div class="summary-item">
+              <span>Status</span>
+              <strong class="status-green">Pronto para solicitar</strong>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="secondary-btn">Ver motoristas próximos</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="bottom-grid">
+        <div class="card">
+          <span class="small-tag blue">Mapa</span>
+          <h2>Localização</h2>
+          <div class="map-placeholder">Mapa do passageiro / origem e destino</div>
+        </div>
+
+        <div class="card">
+          <span class="small-tag orange">Histórico</span>
+          <h2>Últimas corridas</h2>
+          <div class="list-block">
+            <div class="list-row">
+              <span>Centro → Paulista</span>
+              <strong>R$ 19,50</strong>
+            </div>
+            <div class="list-row">
+              <span>Casa → Aeroporto</span>
+              <strong>R$ 42,00</strong>
+            </div>
+            <div class="list-row">
+              <span>Shopping → Casa</span>
+              <strong>R$ 16,80</strong>
+            </div>
+            <div class="list-row">
+              <span>Trabalho → Casa</span>
+              <strong>R$ 21,40</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="small-tag green">Pagamento</span>
+          <h2>Formas de pagamento</h2>
+          <div class="list-block">
+            <div class="list-row">
+              <span>Cartão principal</span>
+              <strong>**** 4582</strong>
+            </div>
+            <div class="list-row">
+              <span>PIX</span>
+              <strong>Ativado</strong>
+            </div>
+            <div class="list-row">
+              <span>Dinheiro</span>
+              <strong>Disponível</strong>
+            </div>
+            <div class="list-row">
+              <span>Endereço salvo</span>
+              <strong>Casa</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        Tela do passageiro pronta para GitHub • versão standalone sem dependências externas
+      </div>
+    </main>
+  </div>
+
+  <script>
+    console.log("passageiro.html carregado.");
+  </script>
+</body>
+</html>
